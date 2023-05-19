@@ -25,6 +25,26 @@ class Hotel:
             return False
 
 
+class SpaHotel(Hotel):
+    def book_spa_package(self):
+        pass
+
+
+class SpaTicket:
+    def __init__(self, customer_name, hotel_object):
+        self.customer_name = customer_name
+        self.hotel = hotel_object
+
+    def generate(self):
+        content = f"""
+        Thank you for your spa reservation!
+        Here are your spa booking data:
+        Name: {self.customer_name}
+        Hotel name: {self.hotel.name}
+        """
+        return content
+
+
 class ReservationConfirmation:
     def __init__(self, customer_name, hotel_object):
         self.customer_name = customer_name
@@ -53,7 +73,7 @@ class CreditCard:
 
 
 # Class inheritance
-# Parent = SecureCreditCard, child = CreditCard
+# Child = SecureCreditCard, parent = CreditCard
 # Checks card info using CC num and password
 class SecureCreditCard(CreditCard):
     def authenticate(self, given_password):
@@ -67,9 +87,10 @@ class SecureCreditCard(CreditCard):
 if __name__ == "__main__":
     print(df)
     hotel_ID = input("Enter the id of the hotel: ")
-    hotel = Hotel(hotel_ID)
+    hotel = SpaHotel(hotel_ID)
 
     if hotel.available():
+        print("Hotel is available.")
         credit_card = SecureCreditCard(number="1234567890123456")
         if credit_card.validate(expiration="12/26", holder="JOHN SMITH", cvc="123"):
             pass_given = input("Please enter CC password: ")
@@ -79,6 +100,11 @@ if __name__ == "__main__":
                 name = input("Enter your name: ")
                 confirmation = ReservationConfirmation(customer_name=name, hotel_object=hotel)
                 print(confirmation.generate())
+                spa = input("So you want to book a spa package? ")
+                if spa == "yes":
+                    hotel.book_spa_package()
+                    spa_ticket = SpaTicket(customer_name=name, hotel_object=hotel)
+                    print(spa_ticket.generate())
             else:
                 print("CC authentication failed.")
         else:
