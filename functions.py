@@ -1,6 +1,9 @@
 import pandas as pd
 
 df = pd.read_csv("hotels.csv", dtype={"id": str})
+# Load cards as dictionary to treat each row as its own data associated with the cardholder name.
+df_cards = pd.read_csv("cards.csv", dtype=str).to_dict(orient="records")
+df_card_security = pd.read_csv("card_security.csv", dtype=str)
 
 
 class Hotel:
@@ -36,15 +39,49 @@ class ReservationConfirmation:
         return content
 
 
+class CreditCard:
+    def __init__(self, number):
+        self.number = number
+
+    def validate(self, expiration, holder, cvc):
+        card_data = {"number": self.number, "expiration": expiration,
+                     "holder": holder, "cvc": cvc}
+        if card_data in df_cards:
+            return True
+        else:
+            return False
+
+
+# Class inheritance
+# Parent = SecureCreditCard, child = CreditCard
+# Checks card info using CC num and password
+class SecureCreditCard(CreditCard):
+    def authenticate(self, given_password):
+        password = df_card_security.loc[df_card_security["number"] == self.number, "password"].squeeze()
+        if password == given_password:
+            return True
+        else:
+            return False
+
+
 if __name__ == "__main__":
     print(df)
     hotel_ID = input("Enter the id of the hotel: ")
     hotel = Hotel(hotel_ID)
 
     if hotel.available():
-        hotel.book()
-        name = input("Enter your name: ")
-        confirmation = ReservationConfirmation(customer_name=name, hotel_object=hotel)
-        print(confirmation.generate())
+        credit_card = SecureCreditCard(number="1234567890123456")
+        if credit_card.validate(expiration="12/26", holder="JOHN SMITH", cvc="123"):
+            pass_given = input("Please enter CC password: ")
+            if credit_card.authenticate(given_password=pass_given):
+                print("CC validated successfully.")
+                hotel.book()
+                name = input("Enter your name: ")
+                confirmation = ReservationConfirmation(customer_name=name, hotel_object=hotel)
+                print(confirmation.generate())
+            else:
+                print("CC authentication failed.")
+        else:
+            print("There was a problem with your payment.")
     else:
-        print("Hotel is not available")
+        print("Hotel is not available.")
