@@ -30,6 +30,13 @@ class Hotel:
     def get_hotel_count(cls, data):
         return len(data)
 
+    # Magic method
+    def __eq__(self, other):
+        if self.hotel_id == other.hotel_id:
+            return True
+        else:
+            return False
+
 
 class ReservationConfirmation:
     def __init__(self, customer_name, hotel_object):
@@ -45,13 +52,15 @@ class ReservationConfirmation:
         return content
 
     # Property method
+    # Interacts with instance
     @property
     def the_customer_name(self):
         # Remove blanks and make f and l name capitalized
         name = self.customer_name.strip().title()
         return name
 
-    # static method. Like a function. Has no reference to class or method
+    # static method.
+    # Like a function. Has no reference to class or class methods
     # Use when you want to do a utility less associated with class
     # Convert Euros to USD
     @staticmethod
@@ -61,23 +70,11 @@ class ReservationConfirmation:
 
 if __name__ == "__main__":
     hotel1 = Hotel(hotel_id="188")
-    hotel2 = Hotel(hotel_id="123")
+    hotel2 = Hotel(hotel_id="134")
+    hotel3 = Hotel(hotel_id="134")
 
-    print(hotel1.available())
-
-    print(hotel1.name)
-
-    print(hotel1.watermark)
-    print(hotel2.watermark)
-    print(Hotel.watermark)
-
-    print(Hotel.get_hotel_count(data=df))
-    print(hotel1.get_hotel_count(data=df))
-
-    ticket = ReservationConfirmation(customer_name="john smith ", hotel_object=hotel1)
-    # Class property
-    print(ticket.the_customer_name)
-    print(ticket.generate())
-
-    converted = ReservationConfirmation.convert(10)
-    print(converted)
+    # Magic method.
+    # hotel1 == hotel2 equivalent to Hotel.__eq__(hotel1, hotel2)
+    print(hotel1 == hotel2)
+    print(Hotel.__eq__(hotel1, hotel2))
+    print(Hotel.__eq__(hotel2, hotel3))
